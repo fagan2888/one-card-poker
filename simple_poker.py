@@ -35,14 +35,15 @@ class Game:
             self.p1.start = None
 
             if d1 is None: # p1 folds
-                self.p2.wealth += pot_size
+                self.p2.wealth += pot_size + opponent_bet
+                print('{} folds'.format(self.p1.name))
                 break
             elif d1 == 0 and p2_played: # p1 calls
-                pot_size += opponent_bet + d1
+                pot_size += 2 * opponent_bet
                 self.resolve(pot_size)
                 break
             elif d1 < 0: # p1 forced all in
-                pot_size += opponent_bet + d1
+                pot_size += 2 * opponent_bet + d1
                 extra = pot_size - 2 * w1
                 self.p2.wealth += extra
                 pot_size = 2 * w1
@@ -51,20 +52,21 @@ class Game:
 
             else: # p1 raises
                 pot_size += 2 * opponent_bet
-                opponent_bet = d1 - opponent_bet
+                opponent_bet = d1
                 d2 = self.p2.decide(pot_size, opponent_bet)
                 self.p2.start = None
                 p2_played = True
 
                 if d2 is None: # p2 folds
-                    self.p1.wealth += pot_size
+                    self.p1.wealth += pot_size + opponent_bet
+                    print('{} folds'.format(self.p2.name))
                     break
                 elif d2 == 0: # p2 calls
-                    pot_size += opponent_bet + d2
+                    pot_size += 2 * opponent_bet
                     self.resolve(pot_size)
                     break
                 elif d2 < 0: # p2 forced all-in
-                    pot_size += opponent_bet + d2
+                    pot_size += 2 * opponent_bet + d2
                     extra = pot_size - 2 * w2
                     self.p1.wealth += extra
                     pot_size = 2 * w2
@@ -72,7 +74,7 @@ class Game:
                     break
                 else: # p2 raises
                     pot_size += 2 * opponent_bet
-                    opponent_bet = d2 - opponent_bet
+                    opponent_bet = d2
 
 
         # Game ends
@@ -149,6 +151,7 @@ class HumanPlayer(Player):
             if self.wealth < opponent_bet:
                 print('Cannot raise, assume all-in')
                 return max(self.wealth - opponent_bet, 0)
+            print('Raised {}'.format(min(self.wealth - opponent_bet, raise_amount)))
             return min(self.wealth - opponent_bet, raise_amount)
 
 
