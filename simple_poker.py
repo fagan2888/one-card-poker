@@ -4,15 +4,16 @@ class Game:
         self.p1 = p1
         self.p2 = p2
 
-    def resolve(self, pot_size):
+    def resolve(self, pot_size, verbose=True):
         if self.p1.card < self.p2.card:
             self.p2.wealth += pot_size
         else:
             self.p1.wealth += pot_size
-        print("{}'s card is {}".format(self.p1.name, self.p1.card))
-        print("{}'s card is {}".format(self.p2.name, self.p2.card))
+        if verbose:
+            print("{}'s card is {}".format(self.p1.name, self.p1.card))
+            print("{}'s card is {}".format(self.p2.name, self.p2.card))
 
-    def play_hand(self):
+    def play_hand(self, verbose=False):
         x,y = np.random.choice(list(range(52)), size=2, replace=False)
         self.p1.card, self.p2.card = x, y
         self.p1.start = True
@@ -31,7 +32,7 @@ class Game:
         p2_played = False
 
         while True:
-            d1 = self.p1.decide(pot_size, opponent_bet)
+            d1 = self.p1.decide(pot_size, opponent_bet, verbose=verbose)
             self.p1.start = None
 
             if d1 is None: # p1 folds
@@ -53,7 +54,7 @@ class Game:
             else: # p1 raises
                 pot_size += 2 * opponent_bet
                 opponent_bet = d1
-                d2 = self.p2.decide(pot_size, opponent_bet)
+                d2 = self.p2.decide(pot_size, opponent_bet, verbose=verbose)
                 self.p2.start = None
                 p2_played = True
 
@@ -100,7 +101,7 @@ class Player:
         self.wealth = wealth
         self.card = None
 
-    def decide(self, pot_size, opponent_bet):
+    def decide(self, pot_size, opponent_bet, verbose=False):
         if self.card is None:
             raise ValueError
 
@@ -115,6 +116,15 @@ class Player:
             raise ValueError
         else:
             self.wealth -= decision + opponent_bet
+            if verbose:
+                if decision is None:
+                    print('Player {} folds'.format(self.name))
+                elif decision < 0 or decision + opponent_bet >= self.wealth:
+                    print('Player {} all-in'.format(self.name))
+                elif decision == 0:
+                    print('Player {} calls/checks'.format(self.name))
+                else:
+                    print('Player {} (re-)raises {}'.format(self.name, decision))
             return decision
 
     def strategy(self, pot_size, opponent_bet):
