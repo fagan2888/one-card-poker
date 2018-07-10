@@ -77,6 +77,8 @@ class Game:
                     pot_size += 2 * opponent_bet
                     opponent_bet = d2
 
+        p1.hand_ended(p2.card)
+        p2.hand_ended(p1.card)
 
         # Game ends
         for p in [self.p1, self.p2]:
@@ -126,6 +128,9 @@ class Player:
                 else:
                     print('Player {} (re-)raises {}'.format(self.name, decision))
             return decision
+
+    def hand_ended(self, other_card):
+        pass
 
     def strategy(self, pot_size, opponent_bet):
         pass
